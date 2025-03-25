@@ -1,6 +1,10 @@
-# Proxmox K3s Cluster Infrastructure
+# Terraform Proxmox Ansible K3s
 
-This repository contains Terraform configurations to automatically provision a lightweight Kubernetes cluster using k3s on Proxmox VE. It creates a cluster with one master node and two worker nodes, all running Ubuntu Server.
+This repository contains Terraform config to automatically provision a lightweight Kubernetes cluster using k3s on Proxmox VE. It creates a cluster with one master node and two worker nodes, all running Ubuntu Server.
+
+My primary goal is reproducability. I try to achieve this by:
+- Infrastructure as Code (IaC) using Terraform to create and manage VMs in Proxmox
+- Configuration management with Ansible to consistently deploy and configure K3s across nodes
 
 ## Architecture
 
@@ -43,8 +47,6 @@ The infrastructure consists of:
 5. Set up k3s using Ansible:
    ```bash
    cd ansible
-   # Set a secure token for the cluster (optional)
-   export K3S_TOKEN=your-secure-token-here
    ansible-playbook -i hosts setup-k3s.yml
    ```
 
@@ -73,30 +75,7 @@ qm template 9000
 
 ### 2. Configure Terraform Variables
 
-Edit `terraform.tfvars` with your specific settings:
-
-```hcl
-proxmox_api_url = "https://your-proxmox-host:8006/api2/json"
-proxmox_api_token_id = "root@pam!terraform"
-proxmox_api_token_secret = "your-secret-token"
-proxmox_node = "pve"
-template_vm_id = 9000
-ssh_public_key = "your-ssh-public-key"
-
-network_config = {
-  bridge = "vmbr0"
-  subnet = "192.168.30.0/24"
-  gateway = "192.168.30.1"
-}
-
-kubernetes_master = {
-  ip = "192.168.30.100/24"
-}
-
-kubernetes_workers = {
-  ip_start = 11
-}
-```
+Edit `terraform.tfvars` with your specific settings
 
 ### 3. Deploy Infrastructure
 
@@ -157,22 +136,3 @@ After the infrastructure and k3s are set up:
    kubectl get nodes
    kubectl get pods -A
    ```
-
-## Resource Requirements
-
-Each VM is configured with:
-- 2 CPU cores
-- 2GB RAM
-- 40GB storage
-- Static IP address
-- Ubuntu Server 20.04 LTS
-
-## Maintenance
-
-- To add more worker nodes:
-  1. Update the `count` parameter in `terraform.tfvars`
-  2. Run `terraform apply`
-  3. Update the `ansible/hosts` file with the new worker node IPs
-  4. Run the Ansible playbook again: `ansible-playbook -i hosts setup-k3s.yml`
-- To update VM resources, modify the respective CPU and memory blocks
-- To destroy the infrastructure: `terraform destroy`
