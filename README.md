@@ -58,14 +58,14 @@ First, create the Ubuntu cloud image template in Proxmox:
 
 ```bash
 # Download Ubuntu Cloud Image
-wget https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img
+wget https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
 
 # Install libguestfs-tools
 apt-get install -y libguestfs-tools
 
 # Create VM template (ID 9000)
 qm create 9000 --name ubuntu-cloud-init-template --memory 2048 --cores 2 --net0 virtio,bridge=vmbr0
-qm importdisk 9000 focal-server-cloudimg-amd64.img local-zfs
+qm importdisk 9000 noble-server-cloudimg-amd64.img local-zfs
 qm set 9000 --scsihw virtio-scsi-pci --scsi0 local-zfs:vm-9000-disk-0
 qm set 9000 --ide2 local-zfs:cloudinit
 qm set 9000 --boot c --bootdisk scsi0
